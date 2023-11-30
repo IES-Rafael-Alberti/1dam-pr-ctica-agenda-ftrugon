@@ -21,15 +21,15 @@ def borrar_consola():
 
 def listademails(contactos) -> list:
     lista_mails = []
-    #para cada diccionario en la lista de contactos pilla el email y lo guarda en lista_mails
+
     for i in contactos:
-        lista_mails.append(i.get('email').lower()) #el .lower sirve para que HoLa@gmail.com y hola@gmail.com sean lo mismo
+        lista_mails.append(i.get('email').lower()) 
     
     return lista_mails
 
-def cargar_contactos(contactos: list):
+def cargar_contactos():
     partes = {}
-    contactos = []
+    contactos_iniciales = []
     with open(RUTA_FICHERO, 'r') as fichero:
         for linea in fichero:
             nuevo = linea.strip().split(";")
@@ -39,77 +39,105 @@ def cargar_contactos(contactos: list):
                 "email" : nuevo[2],
                 "tlfn" : nuevo[3:],
                 }
-            contactos.append(partes)
-        return contactos
+            contactos_iniciales.append(partes)
+        return contactos_iniciales
 
+def pedir_email(contactos_iniciales):
+    try:
+        email = input("Dime el email a añadir: ")
+        lista_mails = listademails(contactos_iniciales)
+        estado2= False
+        while not estado2:
+            if email:
+                if email not in lista_mails:
+                    if email.count("@") == 1:
+                        validar_email(contactos_iniciales,email)
+                        return True
+                    else:
+                        raise ValueError("el email no es un correo válido")
+                else:
+                    raise ValueError("el email ya existe en la agenda")
+            else:
+                raise ValueError("el email no puede ser una cadena vacía")
+    except ValueError as e:
+        print(e)
+        email = input("Dime el email a añadir: ")
+    else:
+        return email
 
+def validar_email(contactos_iniciales:list,email:str) -> bool:
+    lista_mails = listademails(contactos_iniciales)
+    estado2= False
+    while not estado2:
+        if email:
+            if email not in lista_mails:
+                if email.count("@") == 1:
+                    estado2 = True
+                    return True
+                else:
+                    raise ValueError("el email no es un correo válido")
+            else:
+                raise ValueError("el email ya existe en la agenda")
+        else:
+            raise ValueError("el email no puede ser una cadena vacía")
 
-def agregar_contacto(contactos:list) -> dict:
-    #simplemente un print de que se van a crear un contacto
-    print("\nVas a agregar un contacto\n")
-    #se crea nuevo_contacto para almacenar toda la informacion del contacto
-    nuevo_contacto = {}
-    #los .strip en nombre y apellidos es para que los nombres complejos como el mio sean FranciscoJose y para el que quiera meter los 2 apellidos
-    nombre = input("Dime el nombre: ").strip()
-    apellido = input("Dime el apellido: ").strip()
-    #creo estado para acabar el while cuando se de un caso 
+def validar_telefono(tlfn) -> list:
+    telefonos_introducidos = []
     estado = False
     while not estado:
-        #si nombre y apellidos no son cadenas vacias ejecuta lo de dentro, que es añadir al diccionario nuevo contacto
+        if tlfn:
+            if tlfn.lower() == "x":
+                return telefonos_introducidos
+            else:
+                telefono = tlfn.replace(" ", "")  # quitar los espacios en blanco
+                telefono_sin_prefijo = telefono.replace("+34", "")  # quitar el prefijo
+                # comprueba si el número de telefono tiene 9 dígitos y son numeros
+                if len(telefono_sin_prefijo) == 9 and telefono_sin_prefijo.isnumeric():
+                    telefonos_introducidos.append(telefono_sin_prefijo)
+                    tlfn = input("Dime el Nº de telefono, si quieres acabar pon x: ")
+                else:
+                    print("Por favor, introduce un telefono valido (9 dígitos).")
+                    tlfn = input("Dime el Nº de telefono, si quieres acabar pon x: ")
+        else:
+            print("\nNo puedes dejar el número de teléfono vacío.")
+            tlfn = input("Dime el Nº de telefono, si quieres acabar pon x: ")
+
+
+def agregar_contacto(contactos_iniciales:list) -> dict:
+
+    print("\nVas a agregar un contacto\n")
+
+    nuevo_contacto = {}
+
+    nombre = input("Dime el nombre: ").strip()
+    apellido = input("Dime el apellido: ").strip()
+
+    estado = False
+    while not estado:
+
         if nombre and apellido:
             nuevo_contacto["nombre"] = nombre.title()
             nuevo_contacto["apellido"] = apellido.title()
             estado = True
-        #El .title para que si pongo fRan sea Fran
-        #si falla los pide de nuevo, se pueden hacer por separado pero preferi hacerlos juntos
+
         else:
             print("\nNombre y apellidos no tienen que estar vacios, pon algo")
             nombre = input("Dime el nombre: ").strip()
             apellido = input("Dime el apellido: ").strip()
 
     
-    #una funcion que retorna una lista de los mails
-    lista_mails = listademails(contactos)
     
-    email = input("Dime el email: ")
+    email = pedir_email(contactos_iniciales)
 
-    estado2= False
-    while not estado2:
-        if email:
-            if email not in lista_mails:
-                if email.count("@") == 1:
-                    nuevo_contacto["email"] = email
-                    estado2 = True
-                else:
-                    print("\nEmail no valido")
-                    email = input("Dime el email: ")
-            else:
-                print("\nTienes que poner un mail sin repetir")
-                email = input("Dime el email: ")
-        else:
-            print("\nPon un email")
-            email = input("Dime el email: ")
+    nuevo_contacto["email"] = email
     
-    telefonos_introducidos = []
     estado3 = False   
 
     while not estado3:
         tlfn = input("Dime el Nº de telefono, si quieres acabar pon x: ")
+        telefonos_introducidos = validar_telefono(tlfn)
+        estado3 = True
 
-        if tlfn:
-            if tlfn.lower() == "x":
-                estado3 = True
-            else:
-                telefono = tlfn.replace(" ", "")  # quitar los espacios en blanco
-                telefono_sin_prefijo = telefono.replace("+34", "")  # quitar el prefijo
-
-                # comprueba si el número de telefono tiene 9 dígitos y son numeros
-                if len(telefono_sin_prefijo) == 9 and telefono_sin_prefijo.isnumeric():
-                    telefonos_introducidos.append(telefono_sin_prefijo)
-                else:
-                    print("Por favor, introduce un telefono valido (9 dígitos sin espacios).")
-        else:
-            print("\nNo puedes dejar el número de teléfono vacío.")
 
     nuevo_contacto["tlfn"] = telefonos_introducidos
     return nuevo_contacto
@@ -130,8 +158,8 @@ def modificar_contacto(contactos:list) :
                 
                 else:
                     print("\nNombre y apellidos no tienen que estar vacios, pon algo")
-                    nombre = input("Dime el nombre: ").strip()
-                    apellido = input("Dime el apellido: ").strip()
+                    nuevo_nobmre = input("Dime el nombre: ").strip()
+                    nuevo_apellido = input("Dime el apellido: ").strip()
 
             telefonos_introducidos = []
             estado3 = False   
@@ -156,6 +184,10 @@ def modificar_contacto(contactos:list) :
             return True
     else:
         return False
+
+
+def buscar_contacto():
+    print("hola")
 
 def eliminar_contacto(contactos: list, email: str):
     try:
@@ -201,7 +233,7 @@ def pedir_opcion() -> int:
             estado = True
             return valor
 
-def agenda(contactos: list):
+def agenda(contactos_iniciales: list):
     """ Ejecuta el menú de la agenda con varias opciones
     ...
     """
@@ -212,17 +244,17 @@ def agenda(contactos: list):
     while opcion != 8:
         
         #TODO: Se valorará que utilices la diferencia simétrica de conjuntos para comprobar que la opción es un número entero del 1 al 7
-        if opcion in OPCIONES_MENU:
+        if opcion in OPCIONES_MENU ^ 8:
             
             if opcion == 1:
-                nuevo_contacto = agregar_contacto(contactos)
-                contactos.append(nuevo_contacto)
+                nuevo_contacto = agregar_contacto(contactos_iniciales)
+                contactos_iniciales.append(nuevo_contacto)
                 print("\nContacto añadido a la agenda")
                 pulse_tecla_para_continuar()
                 borrar_consola()
             
             elif opcion == 2:
-                verdad = modificar_contacto(contactos)
+                verdad = modificar_contacto(contactos_iniciales)
                 if verdad == True:
                     print("Se ha modificado el contacto perfectamente")
                 else:
@@ -273,28 +305,28 @@ def main():
     borrar_consola()
 
     
-    contactos = []
+    contactos_iniciales = []
 
     
-    contactos = cargar_contactos(contactos)
+    contactos_iniciales = cargar_contactos()
 
 
-    agregar_contacto(contactos)
+    agregar_contacto(contactos_iniciales)
     pulse_tecla_para_continuar()
     borrar_consola()
 
     
-    eliminar_contacto(contactos)
+    eliminar_contacto(contactos_iniciales)
     pulse_tecla_para_continuar()
     borrar_consola()
 
 
-    mostrar_contactos(contactos)
+    mostrar_contactos(contactos_iniciales)
     pulse_tecla_para_continuar()
     borrar_consola()
 
 
-    agenda(contactos)
+    agenda(contactos_iniciales)
 
 if __name__ == "__main__":
     main()
