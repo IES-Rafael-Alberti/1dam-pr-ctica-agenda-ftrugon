@@ -121,7 +121,7 @@ def modificar_contacto(contactos:list) :
             nuevo_apellido = input("Dime el nuevo nombre del contacto: ").strip()
             estado = False
             while not estado:
-                if nombre and apellido:
+                if nuevo_nobmre and nuevo_apellido:
                     contacto["nombre"] = nuevo_nobmre.title()
                     contacto["apellido"] = nuevo_apellido.title()
                     estado = True
@@ -151,6 +151,9 @@ def modificar_contacto(contactos:list) :
                             print("Por favor, introduce un telefono valido (9 dígitos sin espacios).")
                 else:
                     print("\nNo puedes dejar el número de teléfono vacío.")
+            return True
+    else:
+        return False
 
 def eliminar_contacto(contactos: list, email: str):
     try:
@@ -217,7 +220,11 @@ def agenda(contactos: list):
                 borrar_consola()
             
             elif opcion == 2:
-                modificar_contacto(contactos)
+                verdad = modificar_contacto(contactos)
+                if verdad == True:
+                    print("Se ha modificado el contacto perfectamente")
+                else:
+                    print("Este contacto no esta en la agenda")
                 pulse_tecla_para_continuar()
                 borrar_consola()
             
