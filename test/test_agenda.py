@@ -3,14 +3,15 @@ from os import path
 import pathlib
 import pytest
 
-from ExamenU3.agenda_solucion_doc import(
+from src.mi_solucio_agenda import (
     cargar_contactos,
     validar_email,
     pedir_email,
     validar_telefono,
     buscar_contacto,
-    pedir_opcion,
-)
+    pedir_opcion
+    )
+
 
 
 # Simulamos un archivo CSV con datos de contacto para las pruebas
@@ -40,23 +41,23 @@ def test_cargar_contactos(contactos_iniciales):
 
 def test_validar_email(contactos_iniciales):
     with pytest.raises(ValueError, match="el email no puede ser una cadena vacía"):
-        validar_email("", contactos_iniciales, False)
+        validar_email("", contactos_iniciales)
     with pytest.raises(ValueError, match="el email no es un correo válido"):
-        validar_email("correosinarroba.com", contactos_iniciales, False)
+        validar_email("correosinarroba.com", contactos_iniciales)
     with pytest.raises(ValueError, match="el email ya existe en la agenda"):
-        validar_email("rogrojo@gmail.com", contactos_iniciales, True)
+        validar_email("rogrojo@gmail.com", contactos_iniciales)
 
 
 def test_pedir_email(monkeypatch, contactos_iniciales):
     monkeypatch.setattr('builtins.input', lambda _: "")
     with pytest.raises(ValueError, match="el email no puede ser una cadena vacía"):
-        pedir_email(contactos_iniciales, False)
+        pedir_email(contactos_iniciales)
     monkeypatch.setattr('builtins.input', lambda _: "correosinarroba.com")
     with pytest.raises(ValueError, match="el email no es un correo válido"):
-        pedir_email(contactos_iniciales, False)
+        pedir_email(contactos_iniciales)
     monkeypatch.setattr('builtins.input', lambda _: "marcopete@gmail.com")
     with pytest.raises(ValueError, match="el email ya existe en la agenda"):
-        pedir_email(contactos_iniciales, True)
+        pedir_email(contactos_iniciales)
 
 
 @pytest.mark.parametrize(
@@ -85,8 +86,8 @@ def test_validar_telefono(input_tel, expected):
         ("", None)
     ]
 )
-def test_buscar_contacto_params(contactos_iniciales, input_email, expected):
-    assert buscar_contacto(contactos_iniciales, input_email) == expected
+def test_buscar_contacto_params(input_email, expected):
+    assert buscar_contacto(CONTACTOS_PRUEBA, input_email) == expected
 
 
 def test_pedir_opcion(monkeypatch):
