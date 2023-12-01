@@ -56,7 +56,7 @@ def eliminar_contacto(contactos: list, email: str):
     """
     try:
         #TODO: Crear función buscar_contacto para recuperar la posición de un contacto con un email determinado
-
+    
         if pos != None:
             del contactos[pos]
             print("Se eliminó 1 contacto")

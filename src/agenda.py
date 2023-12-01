@@ -26,7 +26,7 @@ NOMBRE_FICHERO = 'contactos.csv'
 RUTA_FICHERO = path.join(RUTA, NOMBRE_FICHERO)
 
 #TODO: Crear un conjunto con las posibles opciones del menú de la agenda
-OPCIONES_MENU = set(0,1,2,3,4,5,6,7)
+OPCIONES_MENU = set(1,2,3,4,5,6,7,8)
 #TODO: Utiliza este conjunto en las funciones agenda() y pedir_opcion()
 
 
